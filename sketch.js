@@ -1,4 +1,6 @@
-
+PLAY = 1;
+END = 0;
+gameState = PLAY;
 
 var monkey , monkey_running
 var banana ,bananaImage,f1,f2,f3, obstacle, obstacleImage
@@ -6,6 +8,7 @@ var FoodGroup, obstacleGroup
 var score
 var survivalTime;
 
+var restart,restartImage;
 
 function preload(){
   
@@ -18,7 +21,8 @@ function preload(){
   f2 = loadImage("fruit2.png")
   f3 = loadImage("fruit3.png")
   
-}
+  restartImage = loadImage("restart.png")
+  }
 
 
 
@@ -36,7 +40,10 @@ function setup() {
   
   survivalTime = 0;
   score = 0;
+
   
+  restart  = createSprite(300,100.10,10)
+  restart.addImage(restartImage)
   
   foodsGroup  = createGroup();
   obstaclesGroup = createGroup();
@@ -47,6 +54,7 @@ function draw() {
   
   background("green");
   
+  if(gameState === PLAY){
   stroke("white")
   textSize(20)
   fill("white")
@@ -55,13 +63,9 @@ function draw() {
   textSize(20)
   fill("black")
     
-    
-
-  
-  
   survivalTime = survivalTime + Math.round(getFrameRate()/60);
   
-    
+    restart.visible = false;
       text("Survival Time "+survivalTime,200,20)
   text("Score "+score,400,20)
     
@@ -81,8 +85,25 @@ function draw() {
    foods();
   obstacles();
      monkey.velocityY = monkey.velocityY + 0.8
-  
+  }
  
+  if(obstaclesGroup.isTouching(monkey)){
+    gameState = END;
+  }
+  if (gameState === END){
+    monkey.visible = false;
+    ground.velocityX = 0;
+    obstaclesGroup.destroyEach();
+    foodsGroup.destroyEach();
+    obstaclesGroup.setVelocityXEach(0);
+    foodsGroup.setVelocityXEach(0);
+    restart.visible = true;
+    text("Game Over",250,30,textSize(20),fill("black"))
+  }
+  
+  if(mousePressedOver(restart)){
+    reset();
+  }
   monkey.collide(ground)
  
   
@@ -132,4 +153,15 @@ function obstacles(){
    }
 }
 
+function reset(){
+  gameState = PLAY;
+  
+  obstaclesGroup.destroyEach();
+  foodsGroup.destroyEach();
+  
+  monkey.visible = true;
+  
+  score = 0;
+  survivalTime = 0;
+}
 
